@@ -9,10 +9,6 @@ on:
   pull_request:
     branches: [ main ]
 
-defaults:
-  run:
-    working-directory: client
-
 
 jobs:
   build:
@@ -32,12 +28,12 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-        path: client
-        working-directory: client
+        working-directory: './client'
         cache: 'npm'
+        cache-dependency-path: './client/package-lock.json'
     - run: npm ci
-      working-directory: client
+      working-directory: './client'
     - run: npm run build --if-present
-      working-directory: client
+      working-directory: './client'
     - run: npm test
-      working-directory: client
+      working-directory: './client'
