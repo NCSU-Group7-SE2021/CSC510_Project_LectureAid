@@ -33,6 +33,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         path: client
+        working-directory: client
         cache: 'npm'
     - run: npm ci
       working-directory: client
