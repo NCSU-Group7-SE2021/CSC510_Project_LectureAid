@@ -1,9 +1,10 @@
 """ user_cli.py """
 import shutil
 import sys
+import os
 import concurrent.futures
 import pyfiglet
-from extract_sizes import extract_words, text_to_groupings
+from extract_sizes import  extract_from_txt, extract_words, text_to_groupings
 import wordprocessing as wp
 from google_search import get_people_also_ask_links
 from wordcloud import WordCloud
@@ -38,7 +39,9 @@ def user_menu():
 
     if choice == valid_choices[0]:
         file_path = input("Please enter the path to the file: ")
-        return file_path
+        # return file_path
+        file_type = os.path.splitext(file_path)[1]
+        return file_path, file_type
 
     if choice == valid_choices[1]:
         input("")
@@ -83,12 +86,20 @@ def generate_wordcloud(data: list, file_name: str) -> None:
 
 
 if __name__ == "__main__":
-    file = user_menu()
-    raw_data = extract_words(file)
+    file,file_type = user_menu()
+
+    if file_type ==".pdf":
+        raw_data = extract_words(file)
+    elif file_type ==".md" or file_type ==".txt":
+        raw_data = extract_from_txt(file) 
+    else:
+        print("Not a supported File Extension")
+        sys.exit(0)
+
+
     raw_data = text_to_groupings(raw_data)
     keyword_data = wp.extract_noun_chunks(raw_data)
     keyword_data = wp.merge_slide_with_same_headers(keyword_data)
-
     # generate a wordcloud
     generate_wordcloud(keyword_data, file)
 
@@ -99,7 +110,6 @@ if __name__ == "__main__":
         # when testing use searchquery[:10 or less].
         # Still working on better threading to get faster results
         results = executor.map(get_people_also_ask_links, search_query[:3])
-
     with open("results.txt", mode="w", encoding="utf-8") as f:
         for result in results:
             for qa in result:
